@@ -12,9 +12,11 @@ export class SidebarService {
       submenu: [
         {titulo: 'Main', url: '/'},
         {titulo: 'ProgressBar', url: 'progress'},
-        // la ruta realmente es /dashboard/chart pero al ponerla sin / 
+        // la ruta realmente es '/dashboard/chart' pero al ponerla sin / 
         // la agrega a la ruta actual que en este casi es dashboard
         {titulo: 'Gráficas', url: 'chart'},
+        {titulo: 'Promesas', url: 'promesas'},
+        {titulo: 'RxJs', url: 'rxjs'},
       ]
     },
 
