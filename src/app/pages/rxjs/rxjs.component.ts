@@ -42,8 +42,6 @@ export class RxjsComponent implements OnDestroy{
    }
 
 
-  
-
 
   retornaObservable(): Observable<number>{
     let i = -1;
