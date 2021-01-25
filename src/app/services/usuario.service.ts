@@ -8,6 +8,7 @@ import { environment } from '../../environments/environment';
 
 import { RegisterForm } from '../interfaces/register-form.interface';
 import { LoginForm } from '../interfaces/login-form.interface';
+import { Usuario } from '../models/usuario.model';
 
 const url = environment.url;
 
@@ -19,11 +20,21 @@ declare const gapi: any;
 export class UsuarioService {
 
   auth2: any;
+  usuario: Usuario;
 
   constructor(private http: HttpClient,
               private router: Router,
               private ngZone: NgZone) {
     this.googleInit(); // Esto solo se ejectua una unica vez. Cada vez que se entra por primera vez a la app
+    this.usuario = new Usuario('', '', '', '', false, '', '');
+  }
+
+  get token(): string {
+    return localStorage.getItem('token') || '';
+  }
+
+  get uid(): string{
+    return this.usuario.uid || '';
   }
 
 
@@ -55,18 +66,21 @@ export class UsuarioService {
   }
 
 
-
+  // IMPORTANTE!!!
+  // Aca llenamos la informacion del usuario para poder usar id y demas
   validarToken(): Observable<boolean> {
-    const token = localStorage.getItem('token') || '';
     return this.http.get(`${url}/login/renew`, {
       headers: {
-        'x-token': token
+        'x-token': this.token
       }
     }).pipe(
-      tap( (res: any) => {
+      map( (res: any) => {
+        const { email, google, nombre, role, uid, img = '' } = res.usuario;
+        this.usuario = new Usuario(nombre, email, '', img, google, role, uid);
         localStorage.setItem('token', res.token);
+        return true;
       }),
-      map( (res: any) => true), // Si hay respuesta me retorna true
+      // map( (res: any) => true), // Si hay respuesta me retorna true
       catchError(error => of(false))
       // El of de rx me permite crear un observable en base al valor que pongamos (en este caso un observable que me envie false)
     );
@@ -80,6 +94,20 @@ export class UsuarioService {
                         localStorage.setItem('token', res.token);
                       })
                     );
+  }
+
+  actualizarUsuario(data: {email: string, nombre: string, role: any}): Observable<any> {
+
+    data = {
+      ...data,
+      role: this.usuario.role
+    };
+
+    return this.http.put(`${url}/usuarios/${this.uid}`, data,  {
+      headers: {
+        'x-token': this.token
+      }
+    });
   }
 
   login(formData: LoginForm): Observable<any>{
