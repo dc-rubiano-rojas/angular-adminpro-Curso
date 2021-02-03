@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { promise } from 'protractor';
 import { environment } from '../../environments/environment';
 
 const url_base = environment.url;
@@ -11,10 +12,7 @@ export class FileUploadService {
 
   constructor() { }
 
-  async actualizarFoto(
-    archivo: File,
-    tipo: 'usuarios'|'medicos'|'hospital',
-    id: any){
+  async actualizarFoto(archivo: File, tipo: any, id: any): Promise<any>{
      try{
         const url = `${url_base}/upload/${tipo}/${id}`;
         const formData = new FormData();
@@ -36,7 +34,7 @@ export class FileUploadService {
           console.log(data);
           return false;
         }
-     }catch(error) {
+     }catch (error) {
        console.log(error);
        return false;
      }

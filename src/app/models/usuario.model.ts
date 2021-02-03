@@ -15,11 +15,11 @@ export class Usuario {
 
     get imagenUrl(): string {
         // /upload/usuarios/cno-image
-        if (this.img?.includes('https')) {
+        if (!this.img) {
+            return `${url}/upload/usuarios/no-image`;
+        } else if (this.img?.includes('https')) {
             return this.img;
-        }
-
-        if (this.img) {
+        } else if (this.img) {
             return `${url}/upload/usuarios/${this.img}`;
         } else {
             return `${url}/upload/usuarios/no-image`;

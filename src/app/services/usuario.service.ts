@@ -1,13 +1,16 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, NgZone } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { tap, map, catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
+
+import { Observable, of } from 'rxjs';
+import { tap, map, catchError, delay } from 'rxjs/operators';
 
 import { environment } from '../../environments/environment';
 
 import { RegisterForm } from '../interfaces/register-form.interface';
 import { LoginForm } from '../interfaces/login-form.interface';
+import { CargarUsuario } from '../interfaces/cargar-usuarios.interface';
+
 import { Usuario } from '../models/usuario.model';
 
 const url = environment.url;
@@ -35,6 +38,14 @@ export class UsuarioService {
 
   get uid(): string{
     return this.usuario.uid || '';
+  }
+
+  get headers(): object {
+    return {
+      headers: {
+        'x-token': this.token
+      }
+    }
   }
 
 
@@ -67,7 +78,7 @@ export class UsuarioService {
 
 
   // IMPORTANTE!!!
-  // Aca llenamos la informacion del usuario para poder usar id y demas
+  // Aca llenamos la informacion del usuario para poder usar id y demas (guard)
   validarToken(): Observable<boolean> {
     return this.http.get(`${url}/login/renew`, {
       headers: {
@@ -101,13 +112,9 @@ export class UsuarioService {
     data = {
       ...data,
       role: this.usuario.role
-    };
+    }
 
-    return this.http.put(`${url}/usuarios/${this.uid}`, data,  {
-      headers: {
-        'x-token': this.token
-      }
-    });
+    return this.http.put(`${url}/usuarios/${this.uid}`, data, this.headers);
   }
 
   login(formData: LoginForm): Observable<any>{
@@ -129,4 +136,32 @@ export class UsuarioService {
   }
 
 
+  cargarUsuarios(desde: number = 0): Observable<any> {
+    return this.http.get<CargarUsuario>(`${url}/usuarios?desde=${desde}`, this.headers)
+                    .pipe(
+                      // delay(5000),
+                      // Esto se creo para poder crear una instancia de nuestro modelo usuario con la
+                      // respuesta y asi poder mostrar la imagen con metodo de este modelo.
+                      // (Se pudo haber hecho con un pipe en el html donde estoy mostrando la imagen)
+                      map( res => {
+                        const usuarios = res.usuarios.map(
+                          user => new Usuario(user.nombre, user.email, '', user.img, user.google, user.role, user.uid)
+                        );
+                        return {
+                          total: res.total,
+                          usuarios
+                        };
+                      })
+                    );
+  }
+
+
+  eliminarUsuario(usuario: Usuario): Observable<any> {
+    return this.http.delete(`${url}/usuarios/${usuario.uid}`, this.headers);
+  }
+
+
+  guardarUsuario(usuario: Usuario): Observable<any> {
+    return this.http.put(`${url}/usuarios/${usuario.uid}`, usuario, this.headers);
+  }
 }

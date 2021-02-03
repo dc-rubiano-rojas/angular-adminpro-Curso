@@ -16,8 +16,9 @@ export class PerfilComponent implements OnInit {
 
   profileForm: FormGroup;
   usuario: Usuario;
-  imagenSubir: File;
-  imgTemp: any = '';
+  imagenSubir: any;
+  imgTemp: any;
+  // imgTemp: File;
 
   constructor(private fb: FormBuilder,
               private usuarioService: UsuarioService,
