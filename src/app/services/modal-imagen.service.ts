@@ -16,7 +16,10 @@ export class ModalImagenService {
 
   // Con esto emito el url de la nueva imagen
   // y con esto se actualiza de inmediato
+  // Se esta emitiendo la imagen del componente del modal
   nuevaImage: EventEmitter<string> = new EventEmitter<string>();
+
+
 
   get ocultarModal(): boolean { // Esto es lo que llamo en mi modal html
     return this.ocultarModel;

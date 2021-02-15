@@ -5,6 +5,8 @@ import { environment } from '../../environments/environment';
 import { map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { Usuario } from '../models/usuario.model';
+import { Hospital } from '../models/hospital.model';
+import { Medico } from '../models/medico.model';
 
 const url = environment.url;
 
@@ -36,6 +38,16 @@ export class BusquedasService {
   }
 
 
+  private transformarHospitales(resultados: any[]): Hospital[]{
+    return resultados;
+  }
+
+
+  private transformarMedicos(resultados: any[]): Medico[]{
+    return resultados;
+  }
+
+
   buscar(tipo: 'usuarios'|'medicos'|'hospitales', termino: string ): Observable<any> {
     return this.http.get<any[]>(`${url}/todo/coleccion/${tipo}/${termino}`, this.headers)
                 .pipe(
@@ -46,8 +58,16 @@ export class BusquedasService {
                         return this.transformarUsuarios(res.resultados);
                         break;
 
+                      case 'hospitales':
+                        return this.transformarHospitales(res.resultados);
+                        break;
+
+                      case 'medicos':
+                        return this.transformarMedicos(res.resultados);
+                        break;
+
                       default:
-                        return res;
+                        return [];
                     }
                   })
                 );
